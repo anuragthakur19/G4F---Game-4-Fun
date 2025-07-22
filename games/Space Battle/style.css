@@ -1,0 +1,172 @@
+:root {
+    --game-bg-color: #0d0d1a; /* Dark blue/purple for space */
+    --game-border-color: #00ffff; /* Cyan border */
+    --text-color: #00ffff; /* Cyan text */
+    --player-color: #00ff00; /* Green player ship (used for fallback/glow) */
+    --player-laser-color: #00ff00; /* NEW: Green player laser */
+    --alien-laser-color: #ff0000; /* NEW: Red alien laser */
+    --alien-color: #ffcc00; /* Yellow alien (used for fallback/glow) */
+    --explosion-color: #ff4500; /* Orange-red for explosions */
+    --obstacle-color: #cccccc; /* Grey for obstacles (fallback) */
+}
+
+body {
+    font-family: 'Space Mono', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #1a1a2e;
+    color: var(--text-color);
+    overflow: hidden;
+}
+
+#top-left-controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+}
+
+.game-button {
+    background-color: var(--game-border-color);
+    color: var(--game-bg-color);
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.8em;
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.game-button:hover {
+    background-color: #00bbbb;
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.8);
+}
+
+#game-container {
+    position: relative;
+    width: 600px;
+    height: 800px;
+    border: 3px solid var(--game-border-color);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.7);
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: var(--game-bg-color);
+}
+
+#game-canvas {
+    display: block;
+    background-color: var(--game-bg-color);
+}
+
+#scoreboard {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.2em;
+    color: var(--text-color);
+    z-index: 10;
+}
+
+#game-message-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    border-radius: 10px;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+#game-message-text {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.8em;
+    color: var(--text-color);
+    margin-bottom: 30px;
+    text-align: center;
+    text-shadow: 0 0 15px var(--text-color);
+}
+
+#game-message-text.countdown {
+    font-size: 3em;
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+#player-ship, .alien-ship {
+    background-color: transparent;
+    box-shadow: none;
+}
+
+.laser {
+    width: 5px;
+    height: 25px;
+    background-color: var(--laser-color); /* This is now controlled by JS */
+    position: absolute;
+    box-shadow: 0 0 10px var(--laser-color);
+    border-radius: 2px;
+    z-index: 4;
+}
+
+.explosion {
+    position: absolute;
+    background-color: var(--explosion-color);
+    border-radius: 50%;
+    opacity: 0;
+    animation: explode 0.3s forwards;
+    z-index: 10;
+}
+
+@keyframes explode {
+    0% { transform: scale(0); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+@media (max-width: 768px) {
+    #game-container {
+        width: 90vw;
+        height: 70vh;
+        max-width: 500px;
+        max-height: 700px;
+    }
+    #game-canvas {
+        width: 100%;
+        height: 100%;
+    }
+    #scoreboard {
+        font-size: 1em;
+    }
+    #game-message-text {
+        font-size: 1.4em;
+    }
+    #game-message-text.countdown {
+        font-size: 2.5em;
+    }
+    .game-button {
+        font-size: 0.7em;
+        padding: 6px 12px;
+    }
+}

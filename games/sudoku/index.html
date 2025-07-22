@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sudoku</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: linear-gradient(to bottom right, #a1c4fd, #c2e9fb);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    select, button {
+      padding: 10px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .sudoku-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 55px);
+      grid-template-rows: repeat(9, 55px);
+      background: #000;
+      border: 4px solid #000;
+    }
+
+    .cell {
+      width: 55px;
+      height: 55px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 500;
+      border: 1px solid #ccc;
+      outline: none;
+      background: #fff;
+    }
+
+    .cell:focus {
+      background-color: #d0f0ff;
+    }
+
+    .cell.correct {
+      background-color: #c8f7c5;
+      animation: pulseGreen 0.4s;
+    }
+
+    .cell.wrong {
+      background-color: #f8c8c8;
+      animation: pulseRed 0.4s;
+    }
+
+    .fixed {
+      font-weight: bold;
+      background-color: #eee !important;
+      pointer-events: none;
+    }
+
+    @keyframes pulseGreen {
+      0% { background-color: #fff; }
+      50% { background-color: #c8f7c5; }
+      100% { background-color: #fff; }
+    }
+
+    @keyframes pulseRed {
+      0% { background-color: #fff; }
+      50% { background-color: #f8c8c8; }
+      100% { background-color: #fff; }
+    }
+
+    @media (max-width: 600px) {
+      .sudoku-grid {
+        transform: scale(0.9);
+      }
+    }
+
+    /* Thick borders for 3x3 boxes */
+    .sudoku-grid input:nth-child(3n+1) {
+      border-left: 3px solid #000;
+    }
+
+    .sudoku-grid input:nth-child(-n+9) {
+      border-top: 3px solid #000;
+    }
+
+    .sudoku-grid input:nth-child(n+73) {
+      border-bottom: 3px solid #000;
+    }
+
+    .sudoku-grid input:nth-child(9n) {
+      border-right: 3px solid #000;
+    }
+
+    /* Top thick row */
+    .sudoku-grid input:nth-child(n+1):nth-child(-n+9),
+    .sudoku-grid input:nth-child(n+28):nth-child(-n+36),
+    .sudoku-grid input:nth-child(n+55):nth-child(-n+63) {
+      border-top: 3px solid #000;
+    }
+
+    /* Left side */
+    .sudoku-grid input:nth-child(9n-8),
+    .sudoku-grid input:nth-child(9n-5),
+    .sudoku-grid input:nth-child(9n-2) {
+      border-left: 3px solid #000;
+    }
+
+    /* Right side */
+    .sudoku-grid input:nth-child(9n) {
+      border-right: 3px solid #000;
+    }
+
+    /* Bottom row */
+    .sudoku-grid input:nth-child(n+73):nth-child(-n+81) {
+      border-bottom: 3px solid #000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sudoku</h1>
+  <button onclick="window.location.href='../../index.html'" style="
+  margin-bottom: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  background: #fff;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  cursor: pointer;
+">
+  ⬅ Back to Games
+</button>
+
+  <div class="controls">
+    <select id="difficulty">
+      <option value="easy">Easy</option>
+      <option value="medium">Medium</option>
+      <option value="hard">Hard</option>
+    </select>
+    <button onclick="generateBoard()">New Game</button>
+    <button onclick="validateBoard()">Validate</button>
+    <button onclick="solveBoard()">Solve</button>
+  </div>
+
+  <div class="sudoku-grid" id="grid"></div>
+
+  <script>
+    let puzzle = [];
+    let solution = [];
+
+    function generateFullBoard() {
+      const board = Array.from({ length: 9 }, () => Array(9).fill(0));
+      solve(board);
+      return board;
+    }
+
+    function generatePuzzle(difficulty) {
+      const full = generateFullBoard();
+      const puzzleCopy = JSON.parse(JSON.stringify(full));
+      let attempts = difficulty === "easy" ? 35 : difficulty === "medium" ? 45 : 55;
+
+      while (attempts > 0) {
+        const row = Math.floor(Math.random() * 9);
+        const col = Math.floor(Math.random() * 9);
+        if (puzzleCopy[row][col] !== 0) {
+          puzzleCopy[row][col] = 0;
+          attempts--;
+        }
+      }
+
+      return [puzzleCopy, full];
+    }
+
+    function generateBoard() {
+      const diff = document.getElementById("difficulty").value;
+      const [newPuzzle, newSolution] = generatePuzzle(diff);
+      puzzle = newPuzzle;
+      solution = newSolution;
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          const input = document.createElement("input");
+          input.maxLength = 1;
+          input.classList.add("cell");
+          input.dataset.row = r;
+          input.dataset.col = c;
+
+          if (puzzle[r][c] !== 0) {
+            input.value = puzzle[r][c];
+            input.classList.add("fixed");
+          } else {
+            input.addEventListener("input", (e) => {
+              const val = e.target.value.replace(/[^1-9]/g, '');
+              e.target.value = val;
+            });
+          }
+
+          grid.appendChild(input);
+        }
+      }
+    }
+
+    function validateBoard() {
+      const inputs = document.querySelectorAll(".cell");
+      inputs.forEach(input => {
+        const r = +input.dataset.row;
+        const c = +input.dataset.col;
+        const val = parseInt(input.value);
+
+        input.classList.remove("correct", "wrong");
+
+        if (!input.classList.contains("fixed")) {
+          if (val === solution[r][c]) {
+            input.classList.add("correct");
+          } else {
+            input.classList.add("wrong");
+          }
+        }
+      });
+    }
+
+    function solveBoard() {
+      const inputs = document.querySelectorAll(".cell");
+      inputs.forEach(input => {
+        const r = +input.dataset.row;
+        const c = +input.dataset.col;
+        input.value = solution[r][c];
+        input.classList.remove("wrong", "correct");
+        if (!input.classList.contains("fixed")) {
+          input.classList.add("correct");
+        }
+      });
+    }
+
+    function isValid(board, row, col, num) {
+      for (let x = 0; x < 9; x++) {
+        if (board[row][x] === num || board[x][col] === num) return false;
+      }
+
+      const boxRow = Math.floor(row / 3) * 3;
+      const boxCol = Math.floor(col / 3) * 3;
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          if (board[boxRow + r][boxCol + c] === num) return false;
+        }
+      }
+
+      return true;
+    }
+
+    function solve(board) {
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          if (board[row][col] === 0) {
+            for (let num = 1; num <= 9; num++) {
+              if (isValid(board, row, col, num)) {
+                board[row][col] = num;
+                if (solve(board)) return true;
+                board[row][col] = 0;
+              }
+            }
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    document.getElementById("difficulty").addEventListener("change", generateBoard);
+    window.onload = generateBoard;
+  </script>
+</body>
+</html>

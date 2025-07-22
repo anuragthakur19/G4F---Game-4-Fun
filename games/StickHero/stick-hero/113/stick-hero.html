@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stick Hero</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    #score {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      font-size: 2em;
+      font-weight: 900;
+    }
+
+    #introduction {
+      width: 200px;
+      height: 150px;
+      position: absolute;
+      font-weight: 600;
+      font-size: 0.8em;
+      text-align: center;
+      transition: opacity 2s;
+    }
+
+    #restart {
+      width: 120px;
+      height: 120px;
+      position: absolute;
+      border-radius: 50%;
+      color: white;
+      background-color: red;
+      border: none;
+      font-weight: 700;
+      font-size: 1.2em;
+      display: none;
+      cursor: pointer;
+    }
+
+    #perfect {
+      position: absolute;
+      opacity: 0;
+      transition: opacity 2s;
+    }
+
+    #backBtn {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #backBtn:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="score"></div>
+    <canvas id="game" width="375" height="375"></canvas>
+    <div id="introduction">Hold down the mouse to stretch out a stick</div>
+    <div id="perfect">DOUBLE SCORE</div>
+    <button id="restart">RESTART</button>
+    <button id="backBtn" onclick="window.location.href='../../../../index.html'">Back</button>
+  </div>
+
+  <script>
+    Array.prototype.last = function () {
+      return this[this.length - 1];
+    };
+
+    Math.sinus = function (degree) {
+      return Math.sin((degree / 180) * Math.PI);
+    };
+
+    let phase = "waiting";
+    let lastTimestamp;
+    let heroX, heroY, sceneOffset;
+    let platforms = [], sticks = [], trees = [];
+    let score = 0;
+
+    const canvasWidth = 375, canvasHeight = 375;
+    const platformHeight = 100, heroDistanceFromEdge = 10, paddingX = 100;
+    const perfectAreaSize = 10;
+    const backgroundSpeedMultiplier = 0.2;
+    const hill1BaseHeight = 100, hill1Amplitude = 10, hill1Stretch = 1;
+    const hill2BaseHeight = 70, hill2Amplitude = 20, hill2Stretch = 0.5;
+    const stretchingSpeed = 4, turningSpeed = 4, walkingSpeed = 4, transitioningSpeed = 2, fallingSpeed = 2;
+    const heroWidth = 17, heroHeight = 30;
+
+    const canvas = document.getElementById("game");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext("2d");
+
+    const intro = document.getElementById("introduction");
+    const perfect = document.getElementById("perfect");
+    const restart = document.getElementById("restart");
+    const scoreDisplay = document.getElementById("score");
+
+    function resetGame() {
+      phase = "waiting";
+      lastTimestamp = undefined;
+      sceneOffset = 0;
+      score = 0;
+      intro.style.opacity = 1;
+      perfect.style.opacity = 0;
+      restart.style.display = "none";
+      scoreDisplay.innerText = score;
+
+      platforms = [{ x: 50, w: 50 }];
+      for (let i = 0; i < 3; i++) generatePlatform();
+      sticks = [{ x: platforms[0].x + platforms[0].w, length: 0, rotation: 0 }];
+      trees = [];
+      for (let i = 0; i < 10; i++) generateTree();
+
+      heroX = platforms[0].x + platforms[0].w - heroDistanceFromEdge;
+      heroY = 0;
+      draw();
+    }
+
+    function generateTree() {
+      const last = trees.last();
+      const x = (last ? last.x : 0) + 30 + Math.random() * 120;
+      const colors = ["#6D8821", "#8FAC34", "#98B333"];
+      trees.push({ x, color: colors[Math.floor(Math.random() * colors.length)] });
+    }
+
+    function generatePlatform() {
+      const last = platforms.last();
+      const x = last.x + last.w + 40 + Math.random() * 160;
+      const w = 20 + Math.random() * 80;
+      platforms.push({ x, w });
+    }
+
+    function thePlatformTheStickHits() {
+      if (sticks.last().rotation !== 90) return [null, false];
+      const stickFarX = sticks.last().x + sticks.last().length;
+      const target = platforms.find(p => p.x < stickFarX && stickFarX < p.x + p.w);
+      if (!target) return [null, false];
+
+      const px = target.x + target.w / 2;
+      const isPerfect = (stickFarX > px - perfectAreaSize / 2) && (stickFarX < px + perfectAreaSize / 2);
+      return [target, isPerfect];
+    }
+
+    function draw() {
+      ctx.save();
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      drawBackground();
+      ctx.translate((window.innerWidth - canvasWidth) / 2 - sceneOffset, (window.innerHeight - canvasHeight) / 2);
+      drawPlatforms();
+      drawHero();
+      drawSticks();
+      ctx.restore();
+    }
+
+    function drawBackground() {
+      const gradient = ctx.createLinearGradient(0, 0, 0, window.innerHeight);
+      gradient.addColorStop(0, "#BBD691");
+      gradient.addColorStop(1, "#FEF1E1");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+      drawHill(hill1BaseHeight, hill1Amplitude, hill1Stretch, "#95C629");
+      drawHill(hill2BaseHeight, hill2Amplitude, hill2Stretch, "#659F1C");
+      trees.forEach(tree => drawTree(tree.x, tree.color));
+    }
+
+    function drawHill(base, amp, stretch, color) {
+      ctx.beginPath();
+      ctx.moveTo(0, window.innerHeight);
+      for (let i = 0; i <= window.innerWidth; i++) {
+        const y = Math.sinus((sceneOffset * backgroundSpeedMultiplier + i) * stretch) * amp;
+        ctx.lineTo(i, window.innerHeight - base + y);
+      }
+      ctx.lineTo(window.innerWidth, window.innerHeight);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
+    function drawTree(x, color) {
+      ctx.save();
+      ctx.translate((x - sceneOffset * backgroundSpeedMultiplier) * hill1Stretch, getTreeY(x));
+      ctx.fillStyle = "#7D833C";
+      ctx.fillRect(-1, -5, 2, 5);
+      ctx.beginPath();
+      ctx.moveTo(-5, -5);
+      ctx.lineTo(0, -30);
+      ctx.lineTo(5, -5);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function getTreeY(x) {
+      return window.innerHeight - hill1BaseHeight + Math.sinus(x) * hill1Amplitude;
+    }
+
+    function drawPlatforms() {
+      platforms.forEach(({ x, w }) => {
+        ctx.fillStyle = "black";
+        ctx.fillRect(x, canvasHeight - platformHeight, w, platformHeight + (window.innerHeight - canvasHeight) / 2);
+        if (sticks.last().x < x) {
+          ctx.fillStyle = "red";
+          ctx.fillRect(x + w / 2 - perfectAreaSize / 2, canvasHeight - platformHeight, perfectAreaSize, perfectAreaSize);
+        }
+      });
+    }
+
+    function drawSticks() {
+      sticks.forEach(stick => {
+        ctx.save();
+        ctx.translate(stick.x, canvasHeight - platformHeight);
+        ctx.rotate((Math.PI / 180) * stick.rotation);
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, -stick.length);
+        ctx.stroke();
+        ctx.restore();
+      });
+    }
+
+    function drawHero() {
+      ctx.save();
+      ctx.fillStyle = "black";
+      ctx.translate(heroX - heroWidth / 2, heroY + canvasHeight - platformHeight - heroHeight / 2);
+      drawRoundedRect(-heroWidth / 2, -heroHeight / 2, heroWidth, heroHeight - 4, 5);
+      ctx.beginPath();
+      ctx.arc(5, -7, 3, 0, Math.PI * 2);
+      ctx.fillStyle = "white";
+      ctx.fill();
+      ctx.fillStyle = "red";
+      ctx.fillRect(-heroWidth / 2 - 1, -12, heroWidth + 2, 4.5);
+      ctx.beginPath();
+      ctx.moveTo(-9, -14.5);
+      ctx.lineTo(-17, -18.5);
+      ctx.lineTo(-14, -8.5);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(-10, -10.5);
+      ctx.lineTo(-15, -3.5);
+      ctx.lineTo(-5, -7);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(5, 11.5, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(-5, 11.5, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawRoundedRect(x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x, y + radius);
+      ctx.lineTo(x, y + height - radius);
+      ctx.arcTo(x, y + height, x + radius, y + height, radius);
+      ctx.lineTo(x + width - radius, y + height);
+      ctx.arcTo(x + width, y + height, x + width, y + height - radius, radius);
+      ctx.lineTo(x + width, y + radius);
+      ctx.arcTo(x + width, y, x + width - radius, y, radius);
+      ctx.lineTo(x + radius, y);
+      ctx.arcTo(x, y, x, y + radius, radius);
+      ctx.fill();
+    }
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      draw();
+    });
+
+    window.addEventListener("mousedown", () => {
+      if (phase === "waiting") {
+        lastTimestamp = undefined;
+        intro.style.opacity = 0;
+        phase = "stretching";
+        requestAnimationFrame(animate);
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (phase === "stretching") {
+        phase = "turning";
+      }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === " ") {
+        e.preventDefault();
+        resetGame();
+      }
+    });
+
+    restart.addEventListener("click", () => {
+      resetGame();
+      restart.style.display = "none";
+    });
+
+    function animate(timestamp) {
+      if (!lastTimestamp) {
+        lastTimestamp = timestamp;
+        requestAnimationFrame(animate);
+        return;
+      }
+
+      const delta = timestamp - lastTimestamp;
+
+      switch (phase) {
+        case "stretching":
+          sticks.last().length += delta / stretchingSpeed;
+          break;
+        case "turning":
+          sticks.last().rotation += delta / turningSpeed;
+          if (sticks.last().rotation >= 90) {
+            sticks.last().rotation = 90;
+            const [target, perfectHit] = thePlatformTheStickHits();
+            if (target) {
+              score += perfectHit ? 2 : 1;
+              scoreDisplay.innerText = score;
+              if (perfectHit) {
+                perfect.style.opacity = 1;
+                setTimeout(() => perfect.style.opacity = 0, 1000);
+              }
+              generatePlatform();
+              for (let i = 0; i < 2; i++) generateTree();
+            }
+            phase = "walking";
+          }
+          break;
+        case "walking":
+          heroX += delta / walkingSpeed;
+          const [nextPlatform] = thePlatformTheStickHits();
+          if (nextPlatform && heroX >= nextPlatform.x + nextPlatform.w - heroDistanceFromEdge) {
+            heroX = nextPlatform.x + nextPlatform.w - heroDistanceFromEdge;
+            phase = "transitioning";
+          } else if (!nextPlatform && heroX >= sticks.last().x + sticks.last().length + heroWidth) {
+            heroX = sticks.last().x + sticks.last().length + heroWidth;
+            phase = "falling";
+          }
+          break;
+        case "transitioning":
+          sceneOffset += delta / transitioningSpeed;
+          const [targetPlatform] = thePlatformTheStickHits();
+          if (sceneOffset >= targetPlatform.x + targetPlatform.w - paddingX) {
+            sticks.push({ x: targetPlatform.x + targetPlatform.w, length: 0, rotation: 0 });
+            phase = "waiting";
+          }
+          break;
+        case "falling":
+          sticks.last().rotation = Math.min(180, sticks.last().rotation + delta / turningSpeed);
+          heroY += delta / fallingSpeed;
+          if (heroY > platformHeight + 100 + (window.innerHeight - canvasHeight) / 2) {
+            restart.style.display = "block";
+            return;
+          }
+          break;
+      }
+
+      draw();
+      requestAnimationFrame(animate);
+      lastTimestamp = timestamp;
+    }
+
+    resetGame();
+  </script>
+</body>
+</html>

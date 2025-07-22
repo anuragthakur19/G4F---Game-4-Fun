@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galactic Battleship</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="top-left-controls">
+        <button id="back-button" class="game-button">Back</button>
+        <button id="restart-button" class="game-button">Restart</button>
+    </div>
+
+    <div id="game-container">
+        <canvas id="game-canvas" width="600" height="800"></canvas>
+
+        <div id="scoreboard">
+            Score: <span id="score">0</span> | Lives: <span id="lives">3</span>
+        </div>
+
+        <div id="game-message-overlay">
+            <h2 id="game-message-text">Press START to begin!</h2>
+            <button id="start-game-btn" class="game-button">Start Game</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

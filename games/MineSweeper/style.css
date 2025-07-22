@@ -1,0 +1,146 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
+  font-family: 'Segoe UI', sans-serif;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.game-container {
+  width: 90%;
+  max-width: 600px;
+  padding: 20px;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  text-align: center;
+}
+
+h1 {
+  margin: 10px 0;
+  font-size: 2em;
+  color: #ffffff;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.controls {
+  margin: 20px 0;
+}
+
+.controls button {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  margin: 5px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s ease;
+}
+
+.controls button:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+#status {
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.board {
+  display: grid;
+  gap: 6px;
+  justify-content: center;
+  padding: 10px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 0 auto;
+}
+
+.cell {
+  aspect-ratio: 1;
+  width: calc(min(100vw, 500px) / var(--cols) - 6px);
+  /* ^ subtracting the gap */
+  max-width: 40px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.2s ease;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+}
+
+
+.cell:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(1.05);
+}
+
+.cell.revealed {
+  background: rgba(255, 255, 255, 0.25);
+  cursor: default;
+  animation: reveal 0.2s ease;
+}
+
+.cell.flagged {
+  background: #f39c12;
+  color: black;
+}
+
+.cell.mine {
+  background: #e74c3c;
+  color: white;
+}
+
+@keyframes reveal {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 500px) {
+  .cell {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .controls button {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}

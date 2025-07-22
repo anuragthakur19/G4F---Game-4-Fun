@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-3xl font-bold text-center mb-4">Hangman Game</h1>
+        <div id="timer" class="text-lg font-semibold text-center mb-4">Time: 120s</div>
+        <canvas id="hangman-canvas" width="150" height="150" class="mx-auto mb-4 border"></canvas>
+        <div id="word-display" class="text-2xl font-mono text-center mb-4"></div>
+        <div id="message" class="text-center mb-4"></div>
+        <div id="keyboard" class="grid grid-cols-7 gap-2 mb-4"></div>
+        <div class="flex justify-between">
+            <button id="hint-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Hint (3 left)</button>
+            <button id="back-btn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Back</button>
+            <button id="reset-btn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Reset</button>
+        </div>
+        <div id="answer" class="text-center mt-4 hidden"></div>
+    </div>
+
+    <script>
+        const words = ['JAVASCRIPT', 'HTML', 'CSS', 'TAILWIND', 'REACT', 'NODEJS', 'ELEPHANT', 'SNAKE', 'PROGRAMER', 'MANSION'];
+        let selectedWord = '';
+        let guessedLetters = [];
+        let incorrectGuesses = 0;
+        let hintCount = 3;
+        let timeLeft = 120;
+        let timerInterval;
+
+        const wordDisplay = document.getElementById('word-display');
+        const message = document.getElementById('message');
+        const keyboard = document.getElementById('keyboard');
+        const hintBtn = document.getElementById('hint-btn');
+        const backBtn = document.getElementById('back-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const timerDisplay = document.getElementById('timer');
+        const answerDisplay = document.getElementById('answer');
+        const canvas = document.getElementById('hangman-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawHangman() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#000';
+            ctx.fillStyle = '#000';
+            ctx.lineWidth = 2;
+
+            // Gallows
+            ctx.beginPath();
+            ctx.moveTo(20, 130); ctx.lineTo(130, 130); // Base
+            ctx.moveTo(50, 130); ctx.lineTo(50, 20); // Pole
+            ctx.moveTo(50, 20); ctx.lineTo(100, 20); // Top
+            ctx.moveTo(100, 20); ctx.lineTo(100, 40); // Rope
+            ctx.stroke();
+
+            // Body parts based on incorrect guesses
+            if (incorrectGuesses >= 1) { // Head with scared expression
+                // Head
+                ctx.beginPath();
+                ctx.arc(100, 50, 10, 0, Math.PI * 2);
+                ctx.stroke();
+                // Left eye (small circle, slightly up and left)
+                ctx.beginPath();
+                ctx.arc(96, 47, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                // Right eye (small circle, slightly up and right)
+                ctx.beginPath();
+                ctx.arc(104, 47, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                // Scared mouth (downturned arc)
+                ctx.beginPath();
+                ctx.arc(100, 50, 4, Math.PI * 0.25, Math.PI * 0.75);
+                ctx.stroke();
+            }
+            if (incorrectGuesses >= 2) { // Body
+                ctx.beginPath();
+                ctx.moveTo(100, 60); ctx.lineTo(100, 90);
+                ctx.stroke();
+            }
+            if (incorrectGuesses >= 3) { // Left Arm
+                ctx.beginPath();
+                ctx.moveTo(100, 70); ctx.lineTo(80, 80);
+                ctx.stroke();
+            }
+            if (incorrectGuesses >= 4) { // Right Arm
+                ctx.beginPath();
+                ctx.moveTo(100, 70); ctx.lineTo(120, 80);
+                ctx.stroke();
+            }
+            if (incorrectGuesses >= 5) { // Left Leg
+                ctx.beginPath();
+                ctx.moveTo(100, 90); ctx.lineTo(80, 110);
+                ctx.stroke();
+            }
+            if (incorrectGuesses >= 6) { // Right Leg
+                ctx.beginPath();
+                ctx.moveTo(100, 90); ctx.lineTo(120, 110);
+                ctx.stroke();
+            }
+        }
+
+        function startGame() {
+            selectedWord = words[Math.floor(Math.random() * words.length)];
+            guessedLetters = [];
+            incorrectGuesses = 0;
+            hintCount = 3;
+            timeLeft = 120;
+            hintBtn.textContent = `Hint (${hintCount} left)`;
+            hintBtn.disabled = false;
+            message.textContent = '';
+            answerDisplay.classList.add('hidden');
+            updateWordDisplay();
+            createKeyboard();
+            drawHangman();
+            startTimer();
+        }
+
+        function updateWordDisplay() {
+            const display = selectedWord
+                .split('')
+                .map(letter => (guessedLetters.includes(letter) ? letter : '_'))
+                .join(' ');
+            wordDisplay.textContent = display;
+            checkWin();
+        }
+
+        function createKeyboard() {
+            keyboard.innerHTML = '';
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+            letters.forEach(letter => {
+                const btn = document.createElement('button');
+                btn.textContent = letter;
+                btn.className = 'bg-gray-200 p-2 rounded hover:bg-gray-300';
+                btn.addEventListener('click', () => handleGuess(letter));
+                keyboard.appendChild(btn);
+            });
+        }
+
+        function handleGuess(letter) {
+            if (!guessedLetters.includes(letter)) {
+                guessedLetters.push(letter);
+                if (!selectedWord.includes(letter)) {
+                    incorrectGuesses++;
+                    drawHangman();
+                    if (incorrectGuesses >= 6) {
+                        message.textContent = 'You Lose!';
+                        message.className = 'text-red-500 text-center mb-4';
+                        revealAnswer();
+                        endGame();
+                    }
+                }
+                updateWordDisplay();
+                const buttons = keyboard.getElementsByTagName('button');
+                for (let btn of buttons) {
+                    if (btn.textContent === letter) {
+                        btn.disabled = true;
+                        btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    }
+                }
+            }
+        }
+
+        function checkWin() {
+            const currentState = wordDisplay.textContent.replace(/\s/g, '');
+            if (currentState === selectedWord) {
+                message.textContent = 'You Win!';
+                message.className = 'text-green-500 text-center mb-4';
+                endGame();
+            }
+        }
+
+        function giveHint() {
+            if (hintCount > 0) {
+                const unguessedLetters = selectedWord
+                    .split('')
+                    .filter(letter => !guessedLetters.includes(letter));
+                if (unguessedLetters.length > 0) {
+                    const hintLetter = unguessedLetters[Math.floor(Math.random() * unguessedLetters.length)];
+                    guessedLetters.push(hintLetter);
+                    hintCount--;
+                    hintBtn.textContent = `Hint (${hintCount} left)`;
+                    updateWordDisplay();
+                    if (hintCount === 0) {
+                        hintBtn.disabled = true;
+                        hintBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    }
+                }
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `Time: ${timeLeft}s`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    message.textContent = 'Time’s up!';
+                    message.className = 'text-red-500 text-center mb-4';
+                    revealAnswer();
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function revealAnswer() {
+            answerDisplay.textContent = `The word was: ${selectedWord}`;
+            answerDisplay.classList.remove('hidden');
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            const buttons = keyboard.getElementsByTagName('button');
+            for (let btn of buttons) {
+                btn.disabled = true;
+                btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+            }
+            hintBtn.disabled = true;
+            hintBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+        }
+
+        hintBtn.addEventListener('click', giveHint);
+        resetBtn.addEventListener('click', startGame);
+        backBtn.addEventListener('click', () => {
+            window.location.href = '/index.html'; // Replace with your desired URL
+        });
+
+        startGame();
+    </script>
+</body>
+</html>

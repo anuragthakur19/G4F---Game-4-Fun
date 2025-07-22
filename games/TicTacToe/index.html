@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic-Tac-Toe</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: sans-serif;
+    }
+
+    body {
+      background: #eee;
+    }
+
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 40px;
+    }
+
+    .back-btn {
+      align-self: flex-start;
+      margin: 20px;
+      padding: 8px 16px;
+      font-size: 1rem;
+      text-decoration: none;
+      color: white;
+      background-color: #333;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .back-btn:hover {
+      background-color: #555;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5em;
+    }
+
+    .scoreboard {
+      display: flex;
+      justify-content: space-around;
+      width: 80%;
+      max-width: 500px;
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+    }
+
+    .play-area {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+    }
+
+    .block {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      background: white;
+      border: 2px solid black;
+      cursor: pointer;
+    }
+
+    .block.occupied {
+      background: #f3f3f3;
+      cursor: not-allowed;
+    }
+
+    .block.win {
+      background: #90ee90;
+    }
+
+    #winner {
+      margin: 20px 0;
+      font-size: 1.5rem;
+      padding: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: 2px solid green;
+      border-radius: 5px;
+      background: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: green;
+      color: white;
+    }
+
+    #menu {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    .sidenav {
+      height: 100%;
+      width: 0;
+      position: fixed;
+      z-index: 1000;
+      top: 0;
+      left: 0;
+      background-color: #111;
+      overflow-x: hidden;
+      transition: 0.5s;
+      padding-top: 60px;
+      color: white;
+    }
+
+    .sidenav a, .sidenav p, .sidenav label {
+      padding: 10px 20px;
+      text-decoration: none;
+      font-size: 18px;
+      color: #ddd;
+      display: block;
+    }
+
+    .sidenav .closebtn {
+      position: absolute;
+      top: 0;
+      right: 10px;
+      font-size: 36px;
+    }
+
+    input[type="radio"] {
+      margin-right: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .play-area {
+        grid-template-columns: repeat(3, 80px);
+        grid-template-rows: repeat(3, 80px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="menu" onclick="openNav()">
+    <svg width="30" height="30" viewBox="0 0 100 80" fill="black">
+      <rect width="100" height="15"></rect>
+      <rect y="30" width="100" height="15"></rect>
+      <rect y="60" width="100" height="15"></rect>
+    </svg>
+  </div>
+
+  <div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <p><strong>Game mode:</strong></p>
+    <label><input type="radio" name="game_mode" id="ai" onchange="startGame(); resetScore();" checked> Play against AI</label>
+    <label><input type="radio" name="game_mode" id="friend" onchange="startGame(); resetScore();"> Play against Friend</label>
+    <a href="#" onclick="resetScore()">🔄 Reset scores</a>
+    <p style="margin-top:20px;">Built by You 🙂</p>
+  </div>
+
+  <div class="container">
+    <a href="../../index.html" class="back-btn">← Back to Home</a>
+    <h1>Tic Tac Toe</h1>
+    <div class="scoreboard">
+      <div><u id="X">You</u>: <span id="player-score">0</span></div>
+      <div><u>Draws</u>: <span id="game-draws">0</span></div>
+      <div><u id="O">Computer</u>: <span id="computer-score">0</span></div>
+    </div>
+
+    <div class="play-area">
+      <div class="block" id="0"></div>
+      <div class="block" id="1"></div>
+      <div class="block" id="2"></div>
+      <div class="block" id="3"></div>
+      <div class="block" id="4"></div>
+      <div class="block" id="5"></div>
+      <div class="block" id="6"></div>
+      <div class="block" id="7"></div>
+      <div class="block" id="8"></div>
+    </div>
+
+    <div id="winner">Good luck ;)</div>
+    <button onclick="startGame()">Reset Board</button>
+  </div>
+
+  <script>
+    let origBoard;
+    const huPlayer = 'X';
+    const aiPlayer = 'O';
+    let first = true;
+    let player_score = 0, game_draws = 0, computer_score = 0;
+
+    const html_player_score = document.getElementById("player-score");
+    const html_game_draws = document.getElementById("game-draws");
+    const html_computer_score = document.getElementById("computer-score");
+    const player_x = document.getElementById("X");
+    const player_o = document.getElementById("O");
+    const winner_statement = document.getElementById("winner");
+    const cells = document.querySelectorAll('.block');
+
+    const winCombos = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+
+    function openNav() {
+      document.getElementById("mySidenav").style.width = "250px";
+    }
+
+    function closeNav() {
+      document.getElementById("mySidenav").style.width = "0";
+    }
+
+    function startGame() {
+      winner_statement.className = '';
+      first = true;
+      if(document.getElementById('friend').checked){
+        player_x.innerText = "X";
+        player_o.innerText = "O";
+        winner_statement.innerText = "X starts the game";
+      } else {
+        player_x.innerText = "You";
+        player_o.innerText = "Computer";
+        winner_statement.innerText = "Good luck ;)";
+      }
+
+      origBoard = Array.from(Array(9).keys());
+      cells.forEach(cell => {
+        cell.innerText = '';
+        cell.classList.remove('win', 'occupied');
+        cell.addEventListener('click', turnClick, false);
+      });
+    }
+
+    function resetScore() {
+      player_score = 0;
+      game_draws = 0;
+      computer_score = 0;
+      html_player_score.textContent = "0";
+      html_game_draws.textContent = "0";
+      html_computer_score.textContent = "0";
+    }
+
+    function turnClick(square) {
+      if (typeof origBoard[square.target.id] === 'number') {
+        if(document.getElementById('ai').checked) {
+          turn(square.target.id, huPlayer);
+          if (!checkWin(origBoard, huPlayer) && !checkTie()) {
+            setTimeout(() => {
+              turn(bestSpot(), aiPlayer);
+              checkWin(origBoard, aiPlayer);
+              checkTie();
+            }, 350);
+          }
+        } else {
+          if(first){
+            turn(square.target.id, huPlayer);
+            if (!checkWin(origBoard, huPlayer)) winner_statement.innerText = "O's turn";
+            first = false;
+          } else {
+            turn(square.target.id, aiPlayer);
+            if (!checkWin(origBoard, aiPlayer)) winner_statement.innerText = "X's turn";
+            first = true;
+          }
+        }
+      }
+    }
+
+    function turn(squareId, player) {
+      origBoard[squareId] = player;
+      const cell = document.getElementById(squareId);
+      cell.innerText = player;
+      cell.classList.add("occupied");
+      const gameWon = checkWin(origBoard, player);
+      if (gameWon) gameOver(gameWon);
+    }
+
+    function checkWin(board, player) {
+      const plays = board.reduce((a, e, i) => (e === player) ? a.concat(i) : a, []);
+      for (let [index, win] of winCombos.entries()) {
+        if (win.every(elem => plays.includes(elem))) {
+          return {index, player};
+        }
+      }
+      return null;
+    }
+
+    function gameOver(gameWon) {
+      winCombos[gameWon.index].forEach(i => {
+        document.getElementById(i).classList.add("win");
+      });
+      cells.forEach(cell => {
+        cell.removeEventListener('click', turnClick);
+      });
+
+      if (gameWon.player === huPlayer) {
+        player_score++;
+        winner_statement.innerText = document.getElementById('friend').checked ? "X is the winner!" : "You Won!";
+        winner_statement.classList.add("playerWin");
+        html_player_score.textContent = player_score;
+      } else {
+        computer_score++;
+        winner_statement.innerText = document.getElementById('friend').checked ? "O is the winner!" : "Computer Won!";
+        winner_statement.classList.add("computerWin");
+        html_computer_score.textContent = computer_score;
+      }
+    }
+
+    function emptySquares() {
+      return origBoard.filter(s => typeof s === 'number');
+    }
+
+    function bestSpot() {
+      return minimax(origBoard, aiPlayer).index;
+    }
+
+    function checkTie() {
+      if (emptySquares().length === 0 && !checkWin(origBoard, huPlayer)) {
+        cells.forEach(cell => cell.removeEventListener('click', turnClick));
+        game_draws++;
+        winner_statement.innerText = "Draw!";
+        winner_statement.classList.add("draw");
+        html_game_draws.textContent = game_draws;
+        return true;
+      }
+      return false;
+    }
+
+    function minimax(newBoard, player) {
+      const availSpots = newBoard.filter(s => typeof s === 'number');
+
+      if (checkWin(newBoard, huPlayer)) return {score: -10};
+      if (checkWin(newBoard, aiPlayer)) return {score: 10};
+      if (availSpots.length === 0) return {score: 0};
+
+      const moves = availSpots.map(spot => {
+        const move = { index: spot };
+        newBoard[spot] = player;
+        move.score = minimax(newBoard, player === aiPlayer ? huPlayer : aiPlayer).score;
+        newBoard[spot] = move.index;
+        return move;
+      });
+
+      return moves.reduce((best, move) => {
+        if (player === aiPlayer && move.score > best.score) return move;
+        if (player === huPlayer && move.score < best.score) return move;
+        return best;
+      }, { score: player === aiPlayer ? -Infinity : Infinity });
+    }
+
+    startGame();
+  </script>
+</body>
+</html>

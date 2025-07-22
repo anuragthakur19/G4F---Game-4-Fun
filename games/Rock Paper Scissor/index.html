@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock, Paper, Scissors!</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="top-right-controls">
+        <button id="restart-game-btn" class="game-button top-control-btn">Restart</button>
+        <button id="back-button" class="game-button top-control-btn">Back</button>
+    </div>
+
+    <div class="game-container">
+        <h1>Rock, Paper, Scissors!</h1>
+
+        <div class="scoreboard">
+            <div class="score-box">
+                <span id="player-score">0</span>
+                <p>Player</p>
+            </div>
+            <div class="score-box">
+                <span id="draw-counter">0</span>
+                <p>Draws</p>
+            </div>
+            <div class="score-box">
+                <span id="computer-score">0</span>
+                <p>Computer</p>
+            </div>
+        </div>
+
+        <div id="result-message">Click 'Start Game' to play!</div>
+
+        <div class="choices-display">
+            <div class="choice-display-box">
+                <p>You chose:</p>
+                <div id="player-hand" class="hand"></div>
+            </div>
+            <div class="choice-display-box">
+                <p>Computer chose:</p>
+                <div id="computer-hand" class="hand"></div>
+            </div>
+        </div>
+
+        <div class="player-options">
+            <button id="rock-btn" class="choice-button" data-choice="rock">✊ Rock</button>
+            <button id="paper-btn" class="choice-button" data-choice="paper">✋ Paper</button>
+            <button id="scissors-btn" class="choice-button" data-choice="scissors">✌️ Scissors</button>
+        </div>
+
+        <div id="game-start-overlay">
+            <button id="start-game-btn" class="game-button start-btn">Start Game!</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

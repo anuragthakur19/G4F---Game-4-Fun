@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Maze Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="top-right-controls">
+        <button id="back-button" class="game-button">Back</button>
+    </div>
+
+    <h1>Dynamic Maze Explorer</h1>
+
+    <div id="game-controls">
+        <p>Choose your difficulty:</p>
+        <button id="easy-btn" class="game-button difficulty-btn" data-difficulty="easy">Easy</button>
+        <button id="medium-btn" class="game-button difficulty-btn" data-difficulty="medium">Medium</button>
+        <button id="hard-btn" class="game-button difficulty-btn" data-difficulty="hard">Hard</button>
+        <button id="start-game-btn" class="game-button">Start New Game</button>
+        <button id="hint-btn" class="game-button">Hint</button>
+    </div>
+
+    <div id="maze-container">
+        </div>
+
+    <div id="message"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

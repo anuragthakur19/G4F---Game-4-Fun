@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Snake Duel</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <button id="backBtn">← Back</button>
+
+    <h1>🐍 Snake Duel</h1>
+
+    <div class="game-wrapper">
+        <div class="game-canvas">
+            <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+            <div id="bigFoodTimerBarWrapper">
+                <div id="bigFoodTimerBar"></div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+                <button id="restartBtn">🔄 Restart Game</button>
+                <button id="pauseBtn">⏸ Pause</button>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div id="scoreDisplay">Score: 0</div>
+        </div>
+    </div>
+
+    <div id="gameOverPopup" class="popup hidden">
+        <div class="popup-content">
+            <h2>💀 Game Over</h2>
+            <p id="finalScore"></p>
+            <button id="popupRestartBtn">Play Again</button> </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

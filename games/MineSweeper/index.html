@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Minesweeper</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="game-container">
+    <div class="top-bar">
+      <button class="back-btn" onclick="location.href='../../index.html'">← Back</button>
+      <h1>Minesweeper</h1>
+    </div>
+
+    <div class="controls">
+      <button onclick="setDifficulty('easy')">Easy</button>
+      <button onclick="setDifficulty('medium')">Medium</button>
+      <button onclick="setDifficulty('hard')">Hard</button>
+      <button onclick="startGame()">New Game</button>
+    </div>
+
+    <p id="status"></p>
+    <div id="board" class="board"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

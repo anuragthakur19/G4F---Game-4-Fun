@@ -1,0 +1,277 @@
+:root {
+    --primary-bg: #2c3e50; /* Dark Blue-Grey */
+    --secondary-bg: #34495e; /* Slightly Lighter Blue-Grey */
+    --accent-color: #f1c40f; /* Yellow */
+    --text-light: #ecf0f1; /* Off-white */
+    --win-color: #27ae60; /* Green */
+    --lose-color: #e74c3c; /* Red */
+    --draw-color: #3498db; /* Blue */
+    --button-bg: #3498db; /* Blue */
+    --button-hover: #2980b9; /* Darker Blue */
+}
+
+body {
+    font-family: 'Press Start 2P', cursive; /* Universal Pixelated Font */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: var(--primary-bg);
+    color: var(--text-light);
+    overflow: hidden;
+}
+
+.game-container {
+    background-color: var(--secondary-bg);
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    text-align: center;
+    border: 3px solid var(--accent-color);
+    position: relative;
+    max-width: 90%;
+    width: 600px;
+    transition: filter 0.3s ease-in-out;
+}
+
+h1 {
+    font-family: 'Press Start 2P', cursive;
+    color: var(--accent-color);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    margin-bottom: 30px;
+    font-size: 1.7em; /* --- ADJUSTED: Smaller for desktop to fit better --- */
+    white-space: nowrap; /* Force heading onto a single line */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Add ellipsis if text is hidden */
+}
+
+#top-right-controls {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
+    display: flex;
+    gap: 10px;
+}
+
+.game-button {
+    background-color: var(--button-bg);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.game-button:hover {
+    background-color: var(--button-hover);
+    transform: translateY(-1px);
+}
+
+.game-button:active {
+    transform: translateY(0);
+}
+
+.start-btn {
+    background-color: var(--win-color);
+    font-size: 1.2em;
+    padding: 15px 30px;
+    border-radius: 10px;
+}
+.start-btn:hover {
+    background-color: #218838;
+}
+
+.scoreboard {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    background-color: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+}
+
+.score-box {
+    text-align: center;
+}
+
+.score-box span {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 3em;
+    color: var(--accent-color);
+    display: block;
+    margin-bottom: 5px;
+}
+
+.score-box p {
+    font-size: 0.9em;
+    margin: 0;
+}
+
+#result-message {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-bottom: 30px;
+    min-height: 1.8em;
+    color: var(--text-light);
+    transition: color 0.3s ease-in-out;
+}
+
+.choices-display {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 40px;
+}
+
+.choice-display-box {
+    text-align: center;
+    width: 45%;
+    background-color: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.choice-display-box p {
+    margin-top: 0;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.hand {
+    font-size: 4em;
+    width: 100px;
+    height: 100px;
+    background-color: var(--secondary-bg);
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    animation: shake 0.5s infinite alternate;
+    transition: transform 0.2s ease-out;
+}
+
+.hand.rock::before { content: '✊'; }
+.hand.paper::before { content: '✋'; }
+.hand.scissors::before { content: '✌️'; }
+
+.hand.played { animation: pop 0.2s ease-out; }
+
+@keyframes shake {
+    0% { transform: rotate(-5deg); }
+    100% { transform: rotate(5deg); }
+}
+
+@keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.player-options {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.choice-button {
+    background-color: var(--button-bg);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.choice-button:hover {
+    background-color: var(--button-hover);
+    transform: translateY(-2px);
+}
+
+.choice-button:active {
+    transform: translateY(0);
+}
+
+/* --- Start Game Overlay Styles --- */
+#game-start-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    z-index: 5;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+#game-start-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.game-container:not(.game-active) .scoreboard,
+.game-container:not(.game-active) .choices-display,
+.game-container:not(.game-active) .player-options {
+    opacity: 0.3;
+    filter: blur(2px);
+    pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.6em; /* --- ADJUSTED: Even smaller on mobile for one line --- */
+        margin-bottom: 20px;
+    }
+    .game-container {
+        padding: 20px;
+    }
+    .score-box span {
+        font-size: 2.2em;
+    }
+    .score-box p {
+        font-size: 0.8em;
+    }
+    #result-message {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+    }
+    .hand {
+        font-size: 3em;
+        width: 70px;
+        height: 70px;
+    }
+    .player-options {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .choice-button {
+        width: 80%;
+        margin: 0 auto;
+        font-size: 0.9em;
+    }
+    .start-btn {
+        font-size: 1em;
+        padding: 10px 20px;
+    }
+}

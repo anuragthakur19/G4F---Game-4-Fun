@@ -1,0 +1,258 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #1f1c2c, #928dab);
+    color: white;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #2d2a40;
+    position: relative; /* Needed for absolute positioning of search toggle */
+    z-index: 10; /* Ensure navbar is above other content */
+}
+
+.navbar .logo {
+    font-weight: bold;
+    font-size: 1.5rem;
+    flex-shrink: 0; /* Prevent logo from shrinking */
+    margin-right: auto; /* Push search and favorites to center/right */
+    padding-left: 1rem; /* Adjust padding for logo */
+}
+
+.navbar .favorites-button {
+    background: transparent;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    padding: 0.5rem 1rem;
+    flex-shrink: 0; /* Prevent button from shrinking */
+    white-space: nowrap; /* Keep text on one line */
+    margin-left: auto; /* Push favorites to the right */
+}
+
+/* Search Toggle UI Styles */
+.search-toggle-container {
+    position: absolute; /* Position relative to navbar */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-toggle-wrapper {
+    padding: 1.25rem; /* p-5 */
+    overflow: hidden;
+    width: 60px; /* w-[60px] */
+    height: 60px; /* h-[60px] */
+    background-color: #4070f4; /* bg-[#4070f4] */
+    box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.08); /* shadow-[2px_2px_20px_rgba(0,0,0,0.08)] */
+    border-radius: 9999px; /* rounded-full */
+    display: flex; /* flex */
+    align-items: center; /* items-center */
+    transition: width 0.3s ease; /* hover:duration-300 duration-300 */
+    position: relative;
+    box-sizing: border-box; /* Include padding in width/height */
+}
+
+.search-toggle-wrapper:hover {
+    width: 270px; /* hover:w-[270px] */
+}
+
+.search-icon-wrapper {
+    display: flex; /* flex */
+    align-items: center; /* items-center */
+    justify-content: center; /* justify-center */
+    fill: white; /* fill-white */
+    flex-shrink: 0; /* Prevent icon from shrinking */
+    margin-right: 1rem; /* Space between icon and input when expanded */
+    transition: margin-right 0.3s ease;
+}
+
+.search-toggle-wrapper:not(:hover) .search-icon-wrapper {
+    margin-right: 0; /* Remove margin when collapsed */
+}
+
+
+.search-input {
+    outline: none; /* outline-none */
+    font-size: 20px; /* text-[20px] */
+    background-color: transparent; /* bg-transparent */
+    width: 100%; /* w-full */
+    color: white; /* text-white */
+    font-weight: normal; /* font-normal */
+    padding: 0 1rem; /* px-4 */
+    border: none; /* Ensure no default border */
+    flex-grow: 1; /* Allow input to grow */
+}
+
+/* Hide placeholder text when collapsed */
+.search-toggle-wrapper:not(:hover) .search-input::placeholder {
+    color: transparent;
+}
+
+
+.tile-grid {
+    display: grid;
+    /* Adjusted minmax for 5 tiles per row to look fulfilled */
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); 
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 900px; /* Max width to contain 5 tiles + gaps + padding */
+    margin: 0 auto; /* Center the grid */
+}
+
+.game-tile {
+    background: #fff;
+    color: #000;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    display: flex; /* Use flex to align content vertically */
+    flex-direction: column;
+    justify-content: space-between; /* Distribute space */
+    height: 250px; /* Consistent height for better alignment */
+    box-sizing: border-box; /* Include padding in height */
+}
+
+.game-tile:hover {
+    transform: scale(1.05);
+}
+
+.game-tile img {
+    width: 100%;
+    height: 120px; /* Fixed height for image */
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.game-tile h3 {
+    margin: 0 0 10px 0; /* Adjust margin for name */
+    font-size: 1.1rem;
+}
+
+/* Specific styling for the 'More games' tile - more nice and stylish */
+.more-games-tile {
+    background: linear-gradient(to bottom right, #5c6bc0, #8d6e63); /* Soft gradient */
+    color: white; /* White text */
+    display: flex;
+    flex-direction: column; /* Align content vertically */
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: center;
+    cursor: default; /* Not clickable like games */
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 5px 15px; /* Deeper shadow */
+    border: 2px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+    line-height: 1.4;
+}
+
+.more-games-tile:hover {
+    transform: none; /* No hover effect for this tile */
+}
+
+.more-games-tile .message-icon {
+    font-size: 3rem; /* Large icon */
+    margin-bottom: 10px;
+    animation: pulse 2s infinite; /* Gentle pulsing animation */
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+
+.favorites {
+    padding: 2rem;
+    max-width: 900px; /* Match main game grid width */
+    margin: 0 auto;
+}
+
+.hidden {
+    display: none !important; /* Use !important to ensure override */
+}
+
+/* Heart UI */
+label {
+    background-color: white;
+    display: flex;
+    align-items: center;
+    /* Adjusted padding and gap to fix overflow */
+    gap: 8px; /* Reduced gap */
+    padding: 8px 10px; /* Reduced padding */
+    cursor: pointer;
+    user-select: none;
+    border-radius: 10px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    color: black;
+    margin-top: auto; /* Push the favorite button to the bottom of the tile */
+    width: fit-content; /* Make label only as wide as content */
+    margin-left: auto; /* Center or align to right */
+    margin-right: auto;
+    box-sizing: border-box; /* Ensure padding is included in width */
+}
+
+input[type="checkbox"] { /* Target only the favorite checkbox */
+    display: none;
+}
+
+input[type="checkbox"]:checked + label svg {
+    fill: red;
+    stroke: red;
+    animation: heartButton 1s;
+}
+
+@keyframes heartButton {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.3); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+input[type="checkbox"] + label .action {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    /* Reduced font size for action text */
+    font-size: 0.85rem; 
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+input[type="checkbox"] + label .action span {
+    grid-column: 1;
+    grid-row: 1;
+    transition: all 0.5s;
+}
+
+input[type="checkbox"] + label .action .option-1 {
+    transform: translateY(0%);
+    opacity: 1;
+}
+
+input[type="checkbox"]:checked + label .action .option-1 {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+input[type="checkbox"] + label .action .option-2 {
+    transform: translateY(100%);
+    opacity: 0;
+}
+
+input[type="checkbox"]:checked + label .action .option-2 {
+    transform: translateY(0%);
+    opacity: 1;
+}
