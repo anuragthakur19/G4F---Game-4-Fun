@@ -7,12 +7,12 @@ const games = [
     { name: "Stick Hero", path: "games/StickHero/stick-hero/113/stick-hero.html", image: "games/StickHero/thumbnail.png" },
     { name: "Tic Tac Toe", path: "games/TicTacToe/index.html", image: "games/TicTacToe/favicon.ico" },
     { name: "Tower Blocks", path: "games/tower-blocks/dist/index.html", image: "games/tower-blocks/thumbnail.png" },
-    { name: "Sudoku", path: "games/Sudoku/index.html", image: "games/Sudoku/thumbnail.png" },
+    { name: "Sudoku", path: "games/sudoku/index.html", image: "games/sudoku/thumbnail.png" },
     { name: "MineSweeper", path: "games/MineSweeper/index.html", image: "games/MineSweeper/thumbnail.png" },
     { name: "2048", path: "games/2048/index.html", image: "games/2048/thumbnail.png" },
     { name: "Hangman", path: "games/Hangman/index.html", image: "games/Hangman/thumbnail.png" },
     { name: "Memory Tiles", path: "games/memory tiles/index.html", image: "games/memory tiles/thumbnail.png" },
-    { name: "Maze Runner", path: "games/maze runner/index.html", image: "games/Maze Runner/thumbnail.png" },
+    { name: "Maze Runner", path: "games/maze runner/index.html", image: "games/maze runner/thumbnail.png" },
     { name: "Rock Paper Scissor", path: "games/Rock Paper Scissor/index.html", image: "games/Rock Paper Scissor/thumbnail.png" },
     { name: "Galactic Battleship", path: "games/Space Battle/index.html", image: "games/Space Battle/thumbnail.png" }
 ];
